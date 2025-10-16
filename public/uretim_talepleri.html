@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Üretim Talepleri</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 40px; background-color: #f2f2f2; }
+h1 { color: #b30000; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { padding: 10px; border: 1px solid #cc0000; text-align: left; }
+th { background-color: #cc0000; color: white; }
+</style>
+</head>
+<body>
+
+<h1>Üretim Talepleri</h1>
+<table id="ordersTable">
+  <thead>
+    <tr>
+      <th>Üretim Sipariş No</th>
+      <th>Line No</th>
+      <th>Band No</th>
+      <th>Ürün Adı</th>
+      <th>Malzeme Kodu</th>
+      <th>Tamamlanan Adet</th>
+      <th>Planlanan Adet</th>
+      <th>Başlangıç Tarihi</th>
+      <th>Bitiş Tarihi</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+async function loadProductionOrders() {
+  const res = await fetch('/api/productionorders');
+  const orders = await res.json();
+  const tbody = document.querySelector('#ordersTable tbody');
+  tbody.innerHTML = '';
+  orders.forEach(order => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${order.production_order_no}</td>
+      <td>${order.line_no}</td>
+      <td>${order.band_no}</td>
+      <td>${order.model_name}</td>
+      <td>${order.model_no}</td>
+      <td>${order.completed_quantity}</td>
+      <td>${order.planned_quantity}</td>
+      <td>${order.start_date?.slice(0,10) || ''}</td>
+      <td>${order.end_date?.slice(0,10) || ''}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+loadProductionOrders();
+</script>
+
+</body>
+</html>

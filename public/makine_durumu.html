@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Makine Durumu</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f2f2f2; padding: 20px; }
+    h1 { color: #c0392b; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+    th { background-color: #c0392b; color: white; }
+  </style>
+</head>
+<body>
+  <h1>Makine Durumu</h1>
+  <table id="machineTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Makine Adı</th>
+        <th>Sıcaklık</th>
+        <th>Nem</th>
+        <th>Aşama</th>
+        <th>Tarih</th>
+        <th>Gün</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+ 
+    <script>
+async function loadMachineStatus() {
+  try {
+    const res = await fetch('http://localhost:3001/api/makine_durumu');
+    if (!res.ok) throw new Error('Makine durumu yüklenemedi: ' + res.status);
+
+    const data = await res.json();
+    const tbody = document.querySelector('#machineTable tbody');
+    tbody.innerHTML = '';
+
+    data.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${row.status_id}</td>
+        <td>${row.machine_id}</td>  <!-- Burada machine_id gösteriliyor -->
+        <td>${row.temperature}</td>
+        <td>${row.humidity}</td>
+        <td>${row.stage}</td>
+        <td>${new Date(row.status_date).toLocaleString()}</td>
+        <td>${row.date}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error(err);
+    alert('❌ ' + err.message);
+  }
+}
+
+loadMachineStatus();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Üretim Çıktısı Oluştur</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #fff0f0;
+    }
+    h1 {
+      color: #b30000;
+    }
+    form {
+      background: #ffe5e5;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(179,0,0,0.2);
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      color: #800000;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+      border: 1px solid #cc0000;
+      border-radius: 4px;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #cc0000;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #a00000;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #cc0000;
+      text-align: left;
+    }
+    th {
+      background-color: #cc0000;
+      color: white;
+    }
+    .delete-btn {
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background-color: #cc0000;
+    }
+  </style>
+</head>
+<body>
+  <h1>Üretim Çıktısı Oluştur</h1>
+  <form id="outputForm">
+    <label for="malzeme">Malzeme Kodu:</label>
+    <input type="text" id="malzeme" required>
+
+    <label for="urun">Ürün Adı:</label>
+    <input type="text" id="urun" required>
+
+    <label for="adet">Adet:</label>
+    <input type="number" id="adet" required>
+
+    <label for="tarih">Tarih:</label>
+    <input type="date" id="tarih" required>
+
+    <button type="submit">Çıktı Ekle</button>
+  </form>
+
+  <table id="outputTable">
+    <thead>
+      <tr>
+        <th>Malzeme Kodu</th>
+        <th>Ürün Adı</th>
+        <th>Adet</th>
+        <th>Tarih</th>
+        <th>İşlem</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('outputForm');
+    const tableBody = document.querySelector('#outputTable tbody');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const malzeme = document.getElementById('malzeme').value;
+      const urun = document.getElementById('urun').value;
+      const adet = document.getElementById('adet').value;
+      const tarih = document.getElementById('tarih').value;
+
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td>${malzeme}</td>
+        <td>${urun}</td>
+        <td>${adet}</td>
+        <td>${tarih}</td>
+        <td><button class="delete-btn">Sil</button></td>
+      `;
+
+      tableBody.appendChild(newRow);
+      form.reset();
+    });
+
+    tableBody.addEventListener('click', function(e) {
+      if (e.target.classList.contains('delete-btn')) {
+        const row = e.target.closest('tr');
+        row.remove();
+      }
+    });
+  </script>
+</body>
+</html>

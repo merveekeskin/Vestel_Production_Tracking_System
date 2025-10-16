@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Çalışan Giriş - Üretim Takip Sistemi</title>
+  <style>
+    /* Tüm stil ayarları aynı kalıyor */
+    body {
+      margin: 0;
+      font-family: Arial, 'Segoe UI', sans-serif;
+      background-color: #f2f2f2;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 220px;
+      background-color: #c0392b;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-links {
+      flex: 1;
+      overflow-y: auto;
+      padding-top: 64px;
+      padding-bottom: 44px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar a {
+      color: white;
+      padding: 18px 24px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background 0.2s;
+    }
+
+    .sidebar a:hover {
+      background-color: #e74c3c;
+    }
+
+    .submenu {
+      display: none;
+      flex-direction: column;
+      background: #c0392b;
+      padding-left: 24px;
+    }
+
+    .submenu a {
+      font-size: 16px;
+      padding: 14px 0;
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .submenu a:hover {
+      background: #e74c3c;
+    }
+
+    .header {
+      position: fixed;
+      top: 0;
+      left: 220px;
+      width: calc(100% - 220px);
+      background-color: #fff;
+      color: #c0392b;
+      padding: 0 24px;
+      font-size: 22px;
+      box-shadow: 0 2px 8px rgba(192,57,43,0.08);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      box-sizing: border-box;
+      z-index: 101;
+    }
+
+    .header-title {
+      flex: 1;
+      text-align: center;
+      font-size: 24px;
+      font-weight: normal;
+      color: #c0392b;
+    }
+
+    .profile-area {
+      position: relative;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      height: 40px;
+      min-width: 40px;
+      outline: none;
+    }
+
+    .profile-img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #c0392b;
+      background: #eee;
+      transition: box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(192,57,43,0.12);
+    }
+
+    .profile-area:focus .profile-img,
+    .profile-img:hover {
+      box-shadow: 0 4px 16px rgba(192,57,43,0.22);
+    }
+
+    .profile-menu {
+      display: none;
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      box-shadow: 0 2px 16px rgba(192,57,43,0.12);
+      min-width: 160px;
+      z-index: 10;
+    }
+
+    .profile-menu.active {
+      display: block;
+    }
+
+    .profile-menu a {
+      display: block;
+      padding: 12px 18px;
+      color: #c0392b;
+      text-decoration: none;
+      font-size: 16px;
+      border-bottom: 1px solid #f2f2f2;
+      transition: background 0.2s;
+    }
+
+    .profile-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .profile-menu a:hover {
+      background: #f2f2f2;
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      margin-top: 56px;
+    }
+
+    .content {
+      margin-left: 220px;
+      padding: 0;
+      background: #fff;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    iframe {
+      width: 100%;
+      height: calc(100vh - 100px);
+      border: none;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 220px;
+      width: calc(100% - 220px);
+      background-color: #fff;
+      color: #c0392b;
+      text-align: center;
+      padding: 8px 0;
+      font-size: 15px;
+      box-shadow: 0 -2px 8px rgba(192,57,43,0.08);
+      z-index: 101;
+      height: 44px;
+    }
+    .sidebar a {
+  color: white;
+  padding: 18px 24px;
+  text-decoration: none;
+  font-size: 18px;
+  transition: background 0.2s;
+  border-bottom: 1px solid white; /* Alt çizgi eklendi */
+}
+
+.submenu a {
+  font-size: 16px;
+  padding: 14px 0;
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s;
+  border-bottom: 1px solid white; /* Alt çizgi eklendi */
+}
+
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-links">
+      <a href="#" onclick="loadPage('anasayfa.html')">Ana Sayfa</a>
+      <a href="#" onclick="toggleSubMenu(event)">Üretim</a>
+      <div class="submenu" id="productionSubmenu">
+        <a href="#" onclick="loadPage('uretim_talepleri.html')">Üretim Taleplerini Gör</a>
+      </div>
+      <a href="#" onclick="loadPage('durus_raporu_olustur.html')">Duruş Raporu Oluştur</a>
+      <a href="#" onclick="loadPage('uretim_ciktisi_olustur.html')">Üretim Çıktısı Oluştur</a>
+      <a href="#" onclick="loadPage('makine_durumu.html')">Makine Durumu</a>
+      <a href="#" onclick="loadPage('nasil_kullanilir.html')">Yardım</a>
+    </div>
+  </div>
+
+  <div class="header">
+    <div class="header-title">Üretim Takip Sistemi</div>
+    <div class="profile-area" tabindex="0" onclick="toggleProfileMenu()" onkeydown="profileKey(event)">
+      <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=facearea&w=256&h=256&facepad=2" alt="Profil" class="profile-img">
+      <div class="profile-menu" id="profileMenu">
+        <!-- Kullanıcı Ekle bağlantısı kaldırıldı -->
+        <a href="#">Ayarlar</a>
+        <a href="#">Çıkış Yap</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="content">
+      <iframe id="mainFrame" src="anasayfa.html"></iframe>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2025 Vestel<br>
+    Ertuğrul Aktaş &nbsp;|&nbsp; Merve Keskin &nbsp;|&nbsp; Vuslat Türk
+  </div>
+
+  <script>
+    function toggleProfileMenu() {
+      document.getElementById('profileMenu').classList.toggle('active');
+    }
+
+    function profileKey(e) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleProfileMenu();
+      }
+    }
+
+    function toggleSubMenu(event) {
+      event.preventDefault();
+      const submenu = document.getElementById('productionSubmenu');
+      submenu.style.display = submenu.style.display === 'none' || submenu.style.display === '' ? 'flex' : 'none';
+    }
+
+    function loadPage(page) {
+      document.getElementById('mainFrame').src = page;
+    }
+  </script>
+</body>
+</html>

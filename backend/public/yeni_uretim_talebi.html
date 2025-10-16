@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Yeni Üretim Talebi Oluştur</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 32px;
+      border-radius: 8px;
+      box-shadow: 0 2px 16px rgba(192,57,43,0.12);
+      width: 400px;
+    }
+    h1 {
+      color: #c0392b;
+      font-size: 24px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #c0392b;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Yeni Üretim Talebi Oluştur</h1>
+    <form id="talepForm">
+      <label for="urun">Ürün Adı</label>
+      <input type="text" id="urun" name="urun" required>
+
+      <label for="adet">Adet</label>
+      <input type="number" id="adet" name="adet" required>
+
+      <label for="tarih">Teslim Tarihi</label>
+      <input type="date" id="tarih" name="tarih" required>
+
+      <label for="aciklama">Açıklama</label>
+      <textarea id="aciklama" name="aciklama" rows="4"></textarea>
+
+      <button type="submit">Talebi Gönder</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('talepForm').addEventListener('submit', async function(e) {
+      e.preventDefault(); // Formun sayfayı yenilemesini engelle
+
+      const data = {
+        urun_adi: document.getElementById('urun').value.trim(),
+        miktar: Number(document.getElementById('adet').value),
+        tarih: document.getElementById('tarih').value,
+        aciklama: document.getElementById('aciklama').value.trim() || null
+      };
+
+      try {
+        const res = await fetch('/api/uretim/talep', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (!res.ok) {
+          alert(result.error || 'Talep eklenirken bir hata oluştu');
+          return;
+        }
+
+        alert('✅ Talep başarıyla eklendi! ID: ' + result.id);
+        document.getElementById('talepForm').reset(); // Formu sıfırla
+
+      } catch (err) {
+        alert('❌ Sunucuya bağlanırken hata: ' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

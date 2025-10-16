@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Üretim Çıktısı Oluştur</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 40px; background-color: #fff0f0; }
+h1 { color: #b30000; }
+form { background: #ffe5e5; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+label { display: block; margin-top: 10px; color: #800000; }
+input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #cc0000; border-radius: 4px; }
+button { margin-top: 15px; padding: 10px 20px; background-color: #cc0000; color: white; border: none; border-radius: 4px; cursor: pointer; }
+button:hover { background-color: #a00000; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { padding: 10px; border: 1px solid #cc0000; text-align: left; }
+th { background-color: #cc0000; color: white; }
+.delete-btn { background-color: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+.delete-btn:hover { background-color: #cc0000; }
+</style>
+</head>
+<body>
+
+<h1>Üretim Çıktısı Oluştur</h1>
+
+<form id="outputForm">
+  <label for="production_order_no">Üretim Sipariş No</label>
+  <input type="text" id="production_order_no" required>
+
+  <label for="line_no">Line No</label>
+  <input type="text" id="line_no" required>
+
+  <label for="band_no">Band No</label>
+  <input type="text" id="band_no" required>
+
+  <label for="model_name">Ürün Adı</label>
+  <input type="text" id="model_name" required>
+
+  <label for="model_no">Malzeme Kodu</label>
+  <input type="text" id="model_no" required>
+
+  <label for="completed_quantity">Tamamlanan Adet</label>
+  <input type="number" id="completed_quantity" required>
+
+  <label for="planned_quantity">Planlanan Adet</label>
+  <input type="number" id="planned_quantity" required>
+
+  <label for="start_date">Başlangıç Tarihi</label>
+  <input type="date" id="start_date" required>
+
+  <label for="end_date">Bitiş Tarihi</label>
+  <input type="date" id="end_date" required>
+
+  <button type="submit">Çıktı Ekle</button>
+</form>
+
+<table id="outputTable">
+  <thead>
+    <tr>
+      <th>Üretim Sipariş No</th>
+      <th>Line No</th>
+      <th>Band No</th>
+      <th>Ürün Adı</th>
+      <th>Malzeme Kodu</th>
+      <th>Tamamlanan Adet</th>
+      <th>Planlanan Adet</th>
+      <th>Başlangıç Tarihi</th>
+      <th>Bitiş Tarihi</th>
+      <th>İşlem</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+
+<script>
+const tableBody = document.querySelector('#outputTable tbody');
+
+async function loadProductionOrders() {
+  try {
+    const res = await fetch('http://localhost:3000/api/productionorders');
+    const orders = await res.json();
+
+    tableBody.innerHTML = '';
+    orders.forEach(order => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${order.production_order_no}</td>
+        <td>${order.line_no}</td>
+        <td>${order.band_no}</td>
+        <td>${order.model_name}</td>
+        <td>${order.model_no}</td>
+        <td>${order.completed_quantity}</td>
+        <td>${order.planned_quantity}</td>
+        <td>${order.start_date}</td>
+        <td>${order.end_date}</td>
+        <td><button class="delete-btn" data-id="${order.production_order_id}">Sil</button></td>
+      `;
+      tableBody.appendChild(row);
+    });
+  } catch (err) {
+    alert('Veriler yüklenirken hata: ' + err.message);
+  }
+}
+
+// Form submit
+document.getElementById('outputForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const data = {
+    production_order_no: document.getElementById('production_order_no').value.trim(),
+    line_no: document.getElementById('line_no').value.trim(),
+    band_no: document.getElementById('band_no').value.trim(),
+    model_name: document.getElementById('model_name').value.trim(),
+    model_no: document.getElementById('model_no').value.trim(),
+    completed_quantity: Number(document.getElementById('completed_quantity').value),
+    planned_quantity: Number(document.getElementById('planned_quantity').value),
+    start_date: document.getElementById('start_date').value,
+    end_date: document.getElementById('end_date').value
+  };
+
+  try {
+    const res = await fetch('http://localhost:3000/api/productionorders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Hata oluştu');
+
+    alert('Sipariş eklendi! ID: ' + result.id);
+    e.target.reset();
+    loadProductionOrders();
+  } catch (err) {
+    alert('Sunucu hatası: ' + err.message);
+  }
+});
+
+// DELETE buton
+tableBody.addEventListener('click', async e => {
+  if (!e.target.classList.contains('delete-btn')) return;
+  const id = e.target.getAttribute('data-id');
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/productionorders/${id}`, { method: 'DELETE' });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || 'Hata oluştu');
+
+    e.target.closest('tr').remove();
+    alert('Sipariş silindi!');
+  } catch (err) {
+    alert('Silme hatası: ' + err.message);
+  }
+});
+
+// Sayfa yüklenince
+window.addEventListener('DOMContentLoaded', loadProductionOrders);
+
+</script>
+
+
+</body>
+</html>

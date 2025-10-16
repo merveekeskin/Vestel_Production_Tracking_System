@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Duruş Raporu Oluştur</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f9f9f9;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .form-container {
+      max-width: 700px;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    select, textarea {
+      width: 300px;
+      padding: 8px;
+      margin-top: 8px;
+      font-size: 16px;
+    }
+
+    .time-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .time-group select {
+      width: 145px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .submit-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-left: 40px;
+    }
+
+    .submit-button {
+      background-color: #c0392b;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(192,57,43,0.3);
+      transition: background 0.2s;
+    }
+
+    .submit-button:hover {
+      background-color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Duruş Raporu Oluştur</h2>
+
+    <label for="durusTipi">Duruş Tipi:</label>
+    <select id="durusTipi" onchange="handleDurusTipi()">
+      <option value="">Seçiniz</option>
+      <option value="planli">Planlı Duruş</option>
+      <option value="plansiz">Plansız Duruş</option>
+    </select>
+
+    <div id="planliAlanlari" class="hidden">
+      <label for="planliSebep">Planlı Duruş Sebebi:</label>
+      <select id="planliSebep" onchange="handlePlanliSebep()">
+        <option value="">Seçiniz</option>
+        <option value="bakim">Bakım</option>
+        <option value="mola">Mola</option>
+      </select>
+
+      <div id="bakimDetay" class="hidden">
+        <label for="bakimText">Bakım Detayı:</label>
+        <textarea id="bakimText" rows="4" placeholder="Bakım açıklamasını giriniz..." oninput="checkFormCompletion()"></textarea>
+
+        <label>Bakım Başlama Saati:</label>
+        <div class="time-group">
+          <select id="baslangicSaat"><option value="">Saat Seçiniz</option></select>
+          <select id="baslangicDakika"><option value="">Dakika Seçiniz</option></select>
+        </div>
+
+        <label>Bakım Bitiş Saati:</label>
+        <div class="time-group">
+          <select id="bitisSaat"><option value="">Saat Seçiniz</option></select>
+          <select id="bitisDakika"><option value="">Dakika Seçiniz</option></select>
+        </div>
+      </div>
+
+      <div id="molaZamani" class="hidden">
+        <label for="molaSaat">Mola Zamanı:</label>
+        <select id="molaSaat" onchange="checkFormCompletion()">
+          <option value="">Seçiniz</option>
+          <option value="09:00-09:15">09:00 - 09:15</option>
+          <option value="12:00-13:00">12:00 - 13:00</option>
+          <option value="16:00-16:15">16:00 - 16:15</option>
+          <option value="23:00-23:15">23:00 - 23:15</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="plansizAlanlari" class="hidden">
+      <label for="plansizText">Plansız Duruş Açıklaması:</label>
+      <textarea id="plansizText" rows="4" placeholder="Plansız duruş açıklamasını giriniz..." oninput="checkFormCompletion()"></textarea>
+
+      <label>Plansız Duruş Başlama Saati:</label>
+      <div class="time-group">
+        <select id="plansizBaslangicSaat"><option value="">Saat Seçiniz</option></select>
+        <select id="plansizBaslangicDakika"><option value="">Dakika Seçiniz</option></select>
+      </div>
+
+      <label>Plansız Duruş Bitiş Saati:</label>
+      <div class="time-group">
+        <select id="plansizBitisSaat"><option value="">Saat Seçiniz</option></select>
+        <select id="plansizBitisDakika"><option value="">Dakika Seçiniz</option></select>
+      </div>
+    </div>
+  </div>
+
+  <div class="submit-area hidden" id="submitArea">
+    <button class="submit-button" onclick="submitForm()">Gönder</button>
+  </div>
+
+  <script>
+    function populateTimeOptions() {
+      const saatler = document.querySelectorAll('#baslangicSaat, #bitisSaat, #plansizBaslangicSaat, #plansizBitisSaat');
+      const dakikalar = document.querySelectorAll('#baslangicDakika, #bitisDakika, #plansizBaslangicDakika, #plansizBitisDakika');
+
+      for (let i = 0; i < 24; i++) {
+        const option = document.createElement('option');
+        option.value = i.toString().padStart(2, '0');
+        option.textContent = i.toString().padStart(2, '0');
+        saatler.forEach(select => select.appendChild(option.cloneNode(true)));
+      }
+
+      for (let i = 0; i < 60; i++) {
+        const option = document.createElement('option');
+        option.value = i.toString().padStart(2, '0');
+        option.textContent = i.toString().padStart(2, '0');
+        dakikalar.forEach(select => select.appendChild(option.cloneNode(true)));
+      }
+    }
+
+    function handleDurusTipi() {
+      const tip = document.getElementById('durusTipi').value;
+      document.getElementById('planliAlanlari').classList.add('hidden');
+      document.getElementById('plansizAlanlari').classList.add('hidden');
+      document.getElementById('bakimDetay').classList.add('hidden');
+      document.getElementById('molaZamani').classList.add('hidden');
+      document.getElementById('submitArea').classList.add('hidden');
+
+      if (tip === 'planli') {
+        document.getElementById('planliAlanlari').classList.remove('hidden');
+      } else if (tip === 'plansiz') {
+        document.getElementById('plansizAlanlari').classList.remove('hidden');
+      }
+      checkFormCompletion();
+    }
+
+    function handlePlanliSebep() {
+      const sebep = document.getElementById('planliSebep').value;
+      document.getElementById('bakimDetay').classList.add('hidden');
+      document.getElementById('molaZamani').classList.add('hidden');
+      document.getElementById('submitArea').classList.add('hidden');
+
+      if (sebep === 'bakim') {
+        document.getElementById('bakimDetay').classList.remove('hidden');
+      } else if (sebep === 'mola') {
+        document.getElementById('molaZamani').classList.remove('hidden');
+      }
+      checkFormCompletion();
+    }
+
+    function checkFormCompletion() {
+      const tip = document.getElementById('durusTipi').value;
+      let showButton = false;
+
+      if (tip === 'planli') {
+        const sebep = document.getElementById('planliSebep').value;
+        if (sebep === 'bakim') {
+          const detay = document.getElementById('bakimText').value.trim();
+          if (detay.length > 0) showButton = true;
+        } else if (sebep === 'mola') {
+          const molaSaat = document.getElementById('molaSaat').value;
+          if (molaSaat !== '') showButton = true;
+        }
+      } else if (tip === 'plansiz') {      } else if (tip === 'plansiz') {
+        const plansizDetay = document.getElementById('plansizText').value.trim();
+        if (plansizDetay.length > 0) showButton = true;
+      }
+
+      const submitArea = document.getElementById('submitArea');
+      if (showButton) {
+        submitArea.classList.remove('hidden');
+      } else {
+        submitArea.classList.add('hidden');
+      }
+    }
+
+    function submitForm() {
+      alert("Duruş raporu başarıyla gönderildi!");
+      // Buraya veri gönderme işlemi eklenebilir
+    }
+
+    window.onload = populateTimeOptions;
+  </script>
+</body>
+</html>
